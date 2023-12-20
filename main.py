@@ -1,7 +1,8 @@
 import logging
-from Avtoelonbot import obunani_tek, buttons
+import obunani_tek
+import buttons
 from config import Token, kanal_id
-from buttons import kirish, kanal
+from buttons import kirish, kanal, majburiyobuna
 from states import holat
 from aiogram import types, executor, Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -19,7 +20,7 @@ async def start(message: types.Message):
     await holat.el.set()
     await message.answer(f"<b><i>👋🏻 Assolomu alaykum <u>{ism} {familiya}</u> quyidagi kanalga obuna bo'ling:</i></b>",
                          parse_mode="html",
-                         reply_markup=buttons.majburiyobuna)
+                         reply_markup=majburiyobuna)
 
 
 @dp.callback_query_handler(state=holat.kir)
@@ -179,18 +180,18 @@ async def tanlash(call: types.CallbackQuery, state: FSMContext):
 async def tekshirish(call: types.CallbackQuery):
     await call.answer()
     final_status = True
-    result = str()
+    result = ''
     for channel in obunani_tek.kanalid:
         status = await obunani_tek.check(user_id=call.from_user.id,
                                          channel=channel)
         channel = await bot.get_chat(channel)
         if status:
             final_status *= status
-            result += f"<b><i>✅ {channel.title} kanaliga obuna bo'lgansiz!</i></b>",
+            result = f"<b><i>✅ {str(channel.title)} kanaliga obuna bo'lgansiz!</i></b>",
 
         else:
             final_status *= False
-            result += (f"❌{channel.title} kanaliga obuna bo'lmagansiz",)
+            result = (f"❌{str(channel.title)} kanaliga obuna bo'lmagansiz",)
 
     if final_status:
         await call.message.delete()
@@ -201,7 +202,7 @@ async def tekshirish(call: types.CallbackQuery):
             reply_markup=kirish)
     else:
         await call.message.delete()
-        await call.message.answer(result, disable_web_page_preview=True, reply_markup=buttons.kirish)
+        await call.message.answer(str(result), disable_web_page_preview=True, reply_markup=buttons.kirish)
 
 
 if __name__ == "__main__":
